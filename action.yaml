@@ -49,6 +49,9 @@ runs:
           echo "result=true" >> "$GITHUB_OUTPUT"
         fi
 
+    - run: echo "Result - ${{ steps.do-sonar.outputs.result }}"
+      shell: bash
+
     - uses: actions/checkout@v4
       if: steps.do-sonar.outputs.result == 'true'
 
