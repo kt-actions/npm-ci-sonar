@@ -45,7 +45,7 @@ runs:
           fi
           echo "result=false" >> "$GITHUB_OUTPUT"
         else
-          echo "sonar-token is set"
+          echo "sonar-token is set. Performing SonarQube scan."
           echo "result=true" >> "$GITHUB_OUTPUT"
         fi
 
