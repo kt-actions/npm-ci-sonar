@@ -27,14 +27,33 @@ inputs:
     default: '.'
   sonar-token:
     description: 'SonarQube token to use for authentication.'
-    required: true
+  fail-on-empty-token:
+    description: 'Fail if the token is empty.'
+    default: 'false'
 
 runs:
   using: 'composite'
   steps:
+    - id: do-sonar
+      shell: bash
+      run: |
+        if [[ -z "${{ secrets.SONAR_TOKENX }}" ]]; then
+          echo "sonar-token is not set"
+          if [[ "${{ inputs.fail-on-empty-token }}" == "true" ]]; then
+            echo "Failing because sonar-token is not set"
+            exit 1
+          fi
+          echo "result=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "sonar-token is set"
+          echo "result=true" >> "$GITHUB_OUTPUT"
+        fi
+
     - uses: actions/checkout@v4
+      if: steps.do-sonar.outputs.result == 'true'
 
     - uses: kt-actions/npm-run-script@v1
+      if: steps.do-sonar.outputs.result == 'true'
       with:
         node-version: ${{ inputs.node-version }}
         matrix-node-version: ${{ inputs.matrix-node-version }}
