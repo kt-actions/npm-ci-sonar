@@ -38,7 +38,7 @@ runs:
       shell: bash
       run: |
         if [[ -z "${{ inputs.sonar-token }}" ]]; then
-          echo "sonar-token is not set"
+          echo "sonar-token is not set. No SonarQube scan will be performed."
           if [[ "${{ inputs.fail-on-empty-token }}" == "true" ]]; then
             echo "Failing because sonar-token is not set"
             exit 1
