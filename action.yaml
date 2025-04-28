@@ -1,27 +1,50 @@
-name: Template
-description: 'Template for creating new actions'
+name: NPM CI SonarQube
+description: NPM Continuous Integration SonarQube action
 
 inputs:
-  name:
-    description: 'Your name'
+  node-version:
+    description: 'Version Spec to use. Examples: 18, 18.x, 18.0.0, 18.0.x, 18.0.0-x, 18.0.0-x64.'
+    required: false
+  matrix-node-version:
+    description: 'Version Spec array, i.e. from matrix.node-version. Latest will be selected from this array and setup-node will be run with the selected version.'
+    required: false
+  matrix-node-version-earliest:
+    description: 'Set this option if you want the action to select for the earliest available version that satisfies the version spec.'
+    default: 'false'
+  install-script:
+    description: 'Bash script to run after setting up Node.js.'
+    default: 'npm ci'
+  run-script:
+    description: 'Bash script to run after setting up Node.js.'
+    default: npm run coverage
+  cache-additional-path:
+    description: 'Additional paths to cache. This is a multi-line list of paths.'
+  cache-reset:
+    description: 'Delete the cache if it exists to cache the new one.'
+    default: 'false'
+  working-directory:
+    description: 'The working directory which contains the **/package-lock.json files'
+    default: '.'
+  sonar-token:
+    description: 'SonarQube token to use for authentication.'
     required: true
-    default: 'World'
-
-outputs:
-  greeting:
-    description: 'The greeting message'
-    value: ${{ steps.hello.outputs.message }}
 
 runs:
   using: 'composite'
   steps:
-    - id: echo
-      run: ${{ tojson(inputs) }}
-      shell: cat {0}
+    - uses: actions/checkout@v4
 
-    - run: echo "message='Hello ${{ inputs.name }}'" >> "$GITHUB_OUTPUT"
-      shell: bash
-      id: hello
+    - uses: kt-actions/npm-run-script@v1
+      with:
+        node-version: ${{ inputs.node-version }}
+        matrix-node-version: ${{ inputs.matrix-node-version }}
+        matrix-node-version-earliest: ${{ inputs.matrix-node-version-earliest }}
+        install-script: ${{ inputs.install-script }}
+        run-script: ${{ inputs.run-script }}
+        cache-additional-path: ${{ inputs.cache-additional-path }}
+        cache-reset: ${{ inputs.cache-reset }}
+        working-directory: ${{ inputs.working-directory }}
 
-    - run: echo "Hello ${{ steps.hello.outputs.message }}"
-      shell: bash
+    - uses: sonarsource/sonarqube-scan-action@v5
+      env:
+        SONAR_TOKEN: ${{ inputs.sonar-token }}
