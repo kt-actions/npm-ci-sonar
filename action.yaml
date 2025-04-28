@@ -37,7 +37,7 @@ runs:
     - id: do-sonar
       shell: bash
       run: |
-        if [[ -z "${{ secrets.SONAR_TOKENX }}" ]]; then
+        if [[ -z "${{ inputs.sonar-token }}" ]]; then
           echo "sonar-token is not set"
           if [[ "${{ inputs.fail-on-empty-token }}" == "true" ]]; then
             echo "Failing because sonar-token is not set"
